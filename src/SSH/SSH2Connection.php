@@ -12,6 +12,8 @@ declare(strict_types=1);
 namespace App\SSH;
 
 
+use App\Exceptions\DeployException;
+
 interface SSH2Connection
 {
 
@@ -22,6 +24,7 @@ interface SSH2Connection
      *
      * @param string $command
      *
+     * @throws DeployException
      * @return string
      */
     public function exec(string $command): string;

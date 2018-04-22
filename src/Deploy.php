@@ -112,6 +112,13 @@ class Deploy
         return $output;
     }
 
+    /**
+     * @param string      $command
+     * @param string|null $path
+     *
+     * @throws DeployException
+     * @return string
+     */
     private function exec(string $command, string $path = null)
     {
         $errors = [
@@ -122,18 +129,8 @@ class Deploy
 
         $path = $path ?? $this->config->path();
 
-        $output = $this->ssh->exec('cd ' . $path . '; ' . $command);
-
-        // @todo Не понятно пока как лучше отлавливать ошибки ssh
-        foreach ($errors as $error) {
-            if (mb_strripos($error, $output)) {
-                $this->logger->critical($error);
-                throw new DeployException($error);
-            }
-        }
-
-
-        return $output;
+      
+        return $this->ssh->exec('cd ' . $path . '; ' . $command);
     }
 
     private function createDir($dir): void
