@@ -8,3 +8,15 @@ require_once __DIR__.'/../vendor/autoload.php';
 $container = require __DIR__ . '/../config/container.php';
 
 use Symfony\Component\Console\Application;
+
+
+$app = new Application();
+
+
+$app->addCommands([
+        $container->get(\App\Console\DeployCommand::class),
+        $container->get(\App\Console\DeployInitCommand::class),
+        $container->get(\App\Console\RollBackCommand::class),
+]);
+
+$app->run();

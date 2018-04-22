@@ -21,7 +21,8 @@ class SSH2Client implements SSH2Connection
     /**
      * @var SSH2
      */
-    private $connection;
+    private $connection = null;
+
 
     /**
      * SSH connection
