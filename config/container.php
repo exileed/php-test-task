@@ -1,12 +1,5 @@
-<?php
-declare(strict_types=1);
-/**
- * @package deploy-task
- *
- * @author  Dmitriy Kuts <me@exileed.com>
- * @link    http://exileed.com
- *
- */
+<?php declare(strict_types=1);
+
 
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
@@ -20,7 +13,9 @@ $container->delegate(
 $container->add(\Psr\Log\LoggerInterface::class, function () {
     $log = new Logger('logger');
     $log->pushHandler(new StreamHandler(__DIR__.'/../logs/app.logs', Logger::WARNING)); //@todo file log in config
+    return $log;
 });
 
+$container->add(\App\SSH\SSH2Connection::class,\App\SSH\SSH2Client::class);
 
 return $container;
