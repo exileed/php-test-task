@@ -68,24 +68,6 @@ class Deploy
 
     }
 
-    public function deploy()
-    {
-
-        $releaseId = $this->releaseID();
-
-        $this->connect();
-        $this->ssh->exec('cd ' . $this->config->path());
-        $this->ssh->exec('git checkout ' . $this->config->ref());
-        $this->ssh->exec('git pull');
-
-        $this->ssh->exec('cp -R sources releases/' . $releaseId);
-        $this->ssh->exec('ln -s releases/' . $releaseId . ' current');
-
-        $this->ssh->exec($this->config->postDeploy());
-
-        return $releaseId;
-    }
-
     private function releaseID(): int
     {
         return time();
@@ -101,6 +83,33 @@ class Deploy
     private function createDir($dir): void
     {
         $this->ssh->exec('mkdir ' . $dir);
+    }
+
+    public function deploy():int
+    {
+
+        $releaseId = $this->releaseID();
+
+        $this->connect();
+        $this->ssh->exec('cd ' . $this->config->path() . '/sources');
+        $this->ssh->exec('git checkout ' . $this->config->ref());
+        $this->ssh->exec('git reset --hard HEAD');
+        $this->ssh->exec('git pull');
+        $this->ssh->exec('cd ' . $this->config->path());
+        $this->ssh->exec('cp -R sources releases/' . $releaseId);
+        $this->ssh->exec('ln -s releases/' . $releaseId . ' current');
+
+        $this->ssh->exec($this->config->postDeploy());
+
+        return $releaseId;
+    }
+
+    public function rollBack($releaseId){
+
+        $this->ssh->exec('ln -s releases/' . $releaseId . ' current');
+
+        $this->ssh->exec($this->config->postRollback());
+
     }
 
 
