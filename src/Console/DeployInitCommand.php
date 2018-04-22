@@ -14,6 +14,7 @@ namespace App\Console;
 
 use App\Config\ArrayConfigBuilder;
 use App\Deploy;
+use App\Exceptions\DeployException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -50,9 +51,15 @@ class DeployInitCommand extends Command
         $deploy = $this->deploy;
         $deploy->setConfig(new ArrayConfigBuilder($config[ 'deploy' ]));
 
-        $deploy->init();
+        try {
+            $deploy->init();
+            $output->writeln('Okey. Deploy me');
 
-        $output->writeln('Okey. Deploy me');
+        } catch (DeployException $e) {
+            $output->writeln('Deploy init fail');
+            $output->writeln($e->getMessage());
+
+        }
 
     }
 

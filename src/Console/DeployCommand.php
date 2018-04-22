@@ -14,6 +14,7 @@ namespace App\Console;
 
 use App\Config\ArrayConfigBuilder;
 use App\Deploy;
+use App\Exceptions\DeployException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -50,9 +51,19 @@ class DeployCommand extends Command
         $deploy = $this->deploy;
         $deploy->setConfig(new ArrayConfigBuilder($config[ 'deploy' ]));
 
-        $deploy->deploy();
+        try {
+            $deploy->deploy();
+            $output->writeln('Deploy done');
 
-        $output->writeln('Deploy done');
+
+        }catch (DeployException $e){
+            $output->writeln('Deploy fail. Rollback');
+
+            $deploy->rollBack();
+
+            $output->writeln(' Rollback Ok');
+
+        }
 
     }
 

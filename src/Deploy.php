@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace App;
 
 
+use App\Exceptions\DeployException;
 use App\SSH\SSH2Client;
 use App\SSH\SSH2Connection;
 use Psr\Log\LoggerInterface;
@@ -66,6 +67,10 @@ class Deploy
     }
 
 
+    /**
+     * @return string
+     * @throws DeployException
+     */
     public function init(): string
     {
 
@@ -78,6 +83,8 @@ class Deploy
         $this->logger->info('Clone repo');
         $this->exec('cp -R sources releases/' . $releaseId);
         $this->exec('ln -s releases/' . $releaseId . ' current');
+
+        $this->logger->info('Deploy init ok');
 
         return $releaseId;
 
@@ -94,14 +101,39 @@ class Deploy
     {
         $sources = $this->config->path() . '/sources';
 
-        return $this->exec('rev-parse HEAD', $sources);
+        $output = $this->exec('rev-parse HEAD', $sources);
+
+        if (mb_strripos('fatal', $output)) {
+            $error = 'error git not found . pls run deploy:init';
+            $this->logger->critical($error);
+            throw new DeployException($error);
+        }
+
+        return $output;
     }
 
     private function exec(string $command, string $path = null)
     {
+        $errors = [
+            'No such file',
+            'fatal',
+            'error',
+        ];
+
         $path = $path ?? $this->config->path();
 
-        return $this->ssh->exec('cd ' . $path . '; ' . $command);
+        $output = $this->ssh->exec('cd ' . $path . '; ' . $command);
+
+        // @todo Не понятно пока как лучше отлавливать ошибки ssh
+        foreach ($errors as $error) {
+            if (mb_strripos($error, $output)) {
+                $this->logger->critical($error);
+                throw new DeployException($error);
+            }
+        }
+
+
+        return $output;
     }
 
     private function createDir($dir): void
@@ -109,6 +141,10 @@ class Deploy
         $this->exec('mkdir ' . $dir);
     }
 
+    /**
+     * @throws DeployException
+     * @return string
+     */
     public function deploy(): string
     {
 

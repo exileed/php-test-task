@@ -4,7 +4,8 @@
     "require": {
         "php":"^7.1",
         "league/container": "^2.4",
-        "symfony/console": "^4.0"
+        "symfony/console": "^4.0",
+        "phpseclib/phpseclib": "~2.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^7.1"
