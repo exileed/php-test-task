@@ -29,9 +29,15 @@ class Deploy
      */
     private $ssh;
 
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
     public function __construct(LoggerInterface $logger, SSH2Connection $ssh)
     {
-        $this->ssh = $ssh;
+        $this->logger = $logger;
+        $this->ssh    = $ssh;
     }
 
     /**
@@ -43,12 +49,28 @@ class Deploy
     }
 
 
-    public function init()
+    public function init(): int
     {
 
+        $releaseId = $this->releaseID();
 
-        $this->ssh->exec('');
+        $this->connect();
 
+        $this->ssh->exec('cd ' . $this->config->path());
+        $this->createDir('releases');
+        $this->logger->info('Creating deployment directory');
+        $this->ssh->exec('git clone ' . $this->config->repo() . ' sources');
+        $this->logger->info('Clone repo');
+        $this->ssh->exec('cp -R sources releases/' . $releaseId);
+        $this->ssh->exec('ln -s releases/' . $releaseId . ' current');
+
+        return $releaseId;
+
+    }
+
+    private function releaseID(): int
+    {
+        return time();
     }
 
     private function connect(): void
@@ -56,6 +78,11 @@ class Deploy
         $this->ssh->connect($this->config->host(), $this->config->username(), $this->config->password(),
             $this->config->private_key());
 
+    }
+
+    private function createDir($dir): void
+    {
+        $this->ssh->exec('mkdir ' . $dir);
     }
 
 
