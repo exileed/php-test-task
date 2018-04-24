@@ -27,6 +27,10 @@ class RollBackCommand extends Command
      */
     private $logger;
 
+    /**
+     * @var Deploy
+     */
+    private $deploy;
 
     public function __construct(LoggerInterface $logger, Deploy $deploy)
     {

@@ -27,6 +27,11 @@ class DeployCommand extends Command
      */
     private $logger;
 
+    /**
+     * @var Deploy
+     */
+    private $deploy;
+
 
     public function __construct(LoggerInterface $logger, Deploy $deploy)
     {
@@ -58,6 +63,7 @@ class DeployCommand extends Command
 
         }catch (DeployException $e){
             $output->writeln('Deploy fail. Rollback');
+            $this->logger->error($e->getMessage());
 
             $deploy->rollBack();
 

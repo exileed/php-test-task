@@ -27,6 +27,11 @@ class DeployInitCommand extends Command
      */
     private $logger;
 
+    /**
+     * @var Deploy
+     */
+    private $deploy;
+
 
     public function __construct(LoggerInterface $logger, Deploy $deploy)
     {
@@ -58,6 +63,7 @@ class DeployInitCommand extends Command
         } catch (DeployException $e) {
             $output->writeln('Deploy init fail');
             $output->writeln($e->getMessage());
+            $this->logger->error($e->getMessage());
 
         }
 
