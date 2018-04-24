@@ -121,11 +121,6 @@ class Deploy
      */
     private function exec(string $command, string $path = null)
     {
-        $errors = [
-            'No such file',
-            'fatal',
-            'error',
-        ];
 
         $path = $path ?? $this->config->path();
 
