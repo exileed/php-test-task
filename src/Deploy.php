@@ -76,6 +76,9 @@ class Deploy
 
         $this->connect();
         $releaseId = $this->currentReleaseID();
+        $sources = $this->config->path().'/sources';
+
+
         $this->exec('cd ' . $this->config->path());
         $this->createDir('releases');
         $this->logger->info('Creating deployment directory');
@@ -143,10 +146,11 @@ class Deploy
         $this->connect();
         $releaseId = $this->currentReleaseID();
 
-        $this->exec('cd ' . $this->config->path() . '/sources');
-        $this->exec('git checkout ' . $this->config->ref());
-        $this->exec('git reset --hard HEAD');
-        $this->exec('git pull');
+        $sources = $this->config->path().'/sources';
+
+        $this->exec('git checkout ' . $this->config->ref(),$sources);
+        $this->exec('git reset --hard HEAD',$sources);
+        $this->exec('git pull',$sources);
         $this->exec('cd ' . $this->config->path());
         $this->exec('cp -R sources releases/' . $releaseId);
         $this->exec('ln -s releases/' . $releaseId . ' current');
